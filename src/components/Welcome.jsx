@@ -16,6 +16,9 @@ const textRender = (text,className,baseWeight=400)=>{
     ))
 }
 const setupTextHover = (container , type) => {
+
+    if(!container) return () => {};
+
     const letters = container.querySelectorAll("span");
     const {min, max, default: base} = FONT_WEIGHTS[type];
 
