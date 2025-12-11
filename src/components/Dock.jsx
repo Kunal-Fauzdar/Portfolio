@@ -3,10 +3,11 @@ import { dockApps } from "@constants";
 import { Tooltip } from "react-tooltip";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import useWindowStore from "@store/window";
 
 function Dock() {
     const dockRef = useRef(null);
-
+    const {openWindow , closeWindow , windows} = useWindowStore();
     useGSAP(() => {
         const dock = dockRef.current;
         if(!dock) return ()=>{};
@@ -56,26 +57,37 @@ function Dock() {
     },[]);
 
     const toggleApps = (app)=>{
-        //TODO Implement app opening logic
+        if(!app.canOpen) return;
+
+        const window = windows[app.id];
+
+        if(!window) return;
+
+        if(window.isOpen){
+            closeWindow(app.id);
+        } else {
+            openWindow(app.id);
+        }
+        console.log(useWindowStore.getState().windows);
     }
 
 
     return (
         <section id='dock'>
             <div ref={dockRef} className="dock-container">
-                {dockApps.map(({id,name,icon,canOpen}) => (
-                    <div key={id} className="relative flex justify-center" >
+                {dockApps.map((app) => (
+                    <div key={app.id} className="relative flex justify-center" >
                         <button 
                             type="button"
                             className="dock-icon"
-                            aria-label={name}
+                            aria-label={app.name}
                             data-tooltip-id = "dock-tooltip"
-                            data-tooltip-content={name}
-                            disabled = {!canOpen}
-                            onClick = {() => toggleApps(name)}>
-                                <img src={`/images/${icon}`} alt={name}
+                            data-tooltip-content={app.name}
+                            disabled = {!app.canOpen}
+                            onClick = {() => toggleApps(app)}>
+                                <img src={`/images/${app.icon}`} alt={app.name}
                                 loading="lazy"
-                                className={canOpen ? "" : "opacity-50"} />
+                                className={app.canOpen ? "" : "opacity-50"} />
                         </button>
                     </div>
                 ))}
